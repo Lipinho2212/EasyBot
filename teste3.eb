@@ -1,0 +1,18 @@
+PROGRAMA Robo
+INICIO
+
+VAR x : NUMERO;
+VAR y : NUMERO;
+
+x = 10;
+y = 20;
+
+SE x > 0 ENTAO
+  y = x + 5;
+FIM_SE
+
+ENQUANTO x < 100 FACA
+  x = x + 10;
+FIM_ENQUANTO
+
+FIM

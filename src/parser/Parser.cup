@@ -1,0 +1,340 @@
+import java_cup.runtime.Symbol;
+import java.util.*;
+import ast.*;
+
+terminal PROGRAMA;
+terminal INICIO;
+terminal FIM;
+terminal VAR;
+terminal NUMERO_TIPO;
+terminal LOGICO_TIPO;
+
+terminal MOVER;
+terminal VEL;
+
+terminal ENQUANTO;
+terminal FACA;
+terminal FIM_ENQUANTO;
+
+terminal SE;
+terminal ENTAO;
+terminal SENAO;
+terminal FIM_SE;
+
+terminal IGUAL_IGUAL;
+terminal DIFERENTE;
+terminal MAIOR;
+terminal MENOR;
+terminal ATRIBUICAO;
+terminal SOMA;
+terminal SUBTRACAO;
+terminal MULTIPLICACAO;
+terminal DIVISAO;
+
+terminal ABRE_PAR;
+terminal FECHA_PAR;
+terminal DOIS_PONTOS;
+terminal PONTO_VIRGULA;
+terminal VIRGULA;
+
+terminal String ID;
+terminal Double NUMERO_LITERAL;
+
+
+non terminal ProgramaNode programa;
+non terminal List declaracoes;
+non terminal DeclaracaoNode declaracao;
+non terminal String tipo;
+non terminal List bloco;
+non terminal List bloco_opcional;
+non terminal ComandoNode comando;
+non terminal AtribuicaoNode atribuicao;
+non terminal EnquantoNode repeticao;
+non terminal MovimentoNode movimento;
+non terminal CondicionalNode condicional;
+non terminal ExpressaoNode expressao;
+non terminal ExpressaoNode termo;
+non terminal ExpressaoNode fator;
+non terminal ExpressaoNode expressao_logica;
+
+start with programa;
+
+programa ::=
+    PROGRAMA
+    ID:nome
+    INICIO
+    declaracoes:decls
+    bloco_opcional:cmds
+    FIM
+    {:
+        RESULT =
+            new ProgramaNode(
+                nome,
+                decls,
+                cmds
+            );
+    :}
+;
+
+declaracoes ::=
+      {:
+            RESULT = new ArrayList();
+      :}
+
+    | declaracoes:lista declaracao:d
+      {:
+            lista.add(d);
+            RESULT = lista;
+      :}
+;
+
+declaracao ::=
+      VAR ID:nome DOIS_PONTOS tipo:t PONTO_VIRGULA
+      {:
+            RESULT = new DeclaracaoNode(nome, t);
+      :}
+;
+
+
+tipo ::=
+      NUMERO_TIPO
+      {:
+            RESULT = "NUMERO";
+      :}
+
+    | LOGICO_TIPO
+      {:
+            RESULT = "LOGICO";
+      :}
+;
+
+
+bloco ::=
+      comando:c
+      {:
+            List lista = new ArrayList();
+            lista.add(c);
+            RESULT = lista;
+      :}
+
+    | bloco:lista comando:c
+      {:
+            lista.add(c);
+            RESULT = lista;
+      :}
+;
+
+bloco_opcional ::=
+      bloco:b
+      {:
+            RESULT = b;
+      :}
+
+    |
+      {:
+            RESULT = new ArrayList();
+      :}
+;
+
+comando ::=
+      atribuicao:a
+      {: RESULT = a; :}
+
+    | movimento:m
+      {: RESULT = m; :}
+
+    | repeticao:r
+      {: RESULT = r; :}
+
+    | condicional:c
+      {: RESULT = c; :}
+;
+
+atribuicao ::=
+    ID:nome
+    ATRIBUICAO
+    expressao:e
+    PONTO_VIRGULA
+    {:
+        RESULT =
+            new AtribuicaoNode(
+                nome,
+                e
+            );
+    :}
+;
+
+movimento ::=
+    MOVER
+    ABRE_PAR
+    expressao:x
+    VIRGULA
+    expressao:y
+    FECHA_PAR
+    VEL
+    expressao:v
+    PONTO_VIRGULA
+    {:
+        RESULT =
+            new MovimentoNode(
+                x,
+                y,
+                v
+            );
+    :}
+;
+
+repeticao ::=
+    ENQUANTO
+    expressao_logica:cond
+    FACA
+    bloco_opcional:cmds
+    FIM_ENQUANTO
+    {:
+        RESULT =
+            new EnquantoNode(
+                cond,
+                cmds
+            );
+    :}
+;
+
+condicional ::=
+
+      SE
+      expressao_logica:cond
+      ENTAO
+      bloco_opcional:entao
+      FIM_SE
+      {:
+            RESULT =
+                new CondicionalNode(
+                    cond,
+                    entao,
+                    new ArrayList()
+                );
+      :}
+
+    | SE
+      expressao_logica:cond
+      ENTAO
+      bloco_opcional:entao
+      SENAO
+      bloco_opcional:senao
+      FIM_SE
+      {:
+            RESULT =
+                new CondicionalNode(
+                    cond,
+                    entao,
+                    senao
+                );
+      :}
+;
+
+expressao ::=
+      expressao:e SOMA termo:t
+      {:
+            RESULT =
+                new SomaNode(
+                    e,
+                    t
+                );
+      :}
+
+    | expressao:e SUBTRACAO termo:t
+      {:
+            RESULT =
+                new SubtracaoNode(
+                    e,
+                    t
+                );
+      :}
+
+    | termo:t
+      {:
+            RESULT = t;
+      :}
+;
+
+termo ::=
+      termo:t MULTIPLICACAO fator:f
+      {:
+            RESULT =
+                new MultiplicacaoNode(
+                    t,
+                    f
+                );
+      :}
+
+    | termo:t DIVISAO fator:f
+      {:
+            RESULT =
+                new DivisaoNode(
+                    t,
+                    f
+                );
+      :}
+
+    | fator:f
+      {:
+            RESULT = f;
+      :}
+;
+
+fator ::=
+      NUMERO_LITERAL:n
+      {:
+            RESULT = new NumeroNode(n);
+      :}
+
+    | ID:nome
+      {:
+            RESULT = new VariavelNode(nome);
+      :}
+
+    | ABRE_PAR expressao:e FECHA_PAR
+      {:
+            RESULT = e;
+      :}
+;
+
+expressao_logica ::=
+
+      expressao:e1 IGUAL_IGUAL expressao:e2
+      {:
+            RESULT =
+                new IgualNode(
+                    e1,
+                    e2
+                );
+      :}
+
+    | expressao:e1 DIFERENTE expressao:e2
+      {:
+            RESULT =
+                new DiferenteNode(
+                    e1,
+                    e2
+                );
+      :}
+
+    | expressao:e1 MAIOR expressao:e2
+      {:
+            RESULT =
+                new MaiorNode(
+                    e1,
+                    e2
+                );
+      :}
+
+    | expressao:e1 MENOR expressao:e2
+      {:
+            RESULT =
+                new MenorNode(
+                    e1,
+                    e2
+                );
+      :}
+;
+

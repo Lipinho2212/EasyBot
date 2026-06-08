@@ -1,0 +1,21 @@
+PROGRAMA Robo
+INICIO
+
+VAR x : NUMERO;
+VAR y : NUMERO;
+VAR velocidade : NUMERO;
+
+x = 10;
+y = 20;
+velocidade = 5;
+
+SE x > 0 ENTAO
+  mover(x, y, velocidade);
+FIM_SE
+
+ENQUANTO x < 100 FACA
+  x = x + 10;
+  y = y - 5;
+FIM_ENQUANTO
+
+FIM

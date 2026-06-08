@@ -1,0 +1,9 @@
+PROGRAMA Robo
+INICIO
+
+VAR sensor : LOGICO;
+VAR x : NUMERO;
+
+x = sensor + 10;
+
+FIM
