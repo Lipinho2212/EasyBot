@@ -1,4 +1,4 @@
-# EasyBot - Compilador para Robótica
+# EasyBot - Compilador 
 
 Um compilador que traduz código escrito em linguagem EasyBot para Python. Projeto feito na disciplina de Compiladores.
 
